@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013"
+             x:Class="OfflineAheadOfTime.MainPage">
+
+    <Grid Style="{DynamicResource EsriSampleContainer}">
+        <esri:MapView x:Name="MyMapView" Style="{DynamicResource EsriSampleGeoView}"
+                      Map="{Binding Map}"
+                      ViewpointChanged="MyMapView_ViewpointChanged"
+                      GraphicsOverlays="{Binding GraphicsOverlays}"/>
+        <Border>
+            <!-- Style="{DynamicResource EsriSampleControlPanel}"-->
+            <StackLayout Padding="5">
+                <Label x:Name="MessageLabel"
+                       Margin="5"
+                       HorizontalTextAlignment="Center"
+                       Text="{Binding MessageText}" />
+                <ListView x:Name="AreasList"
+                          HeightRequest="150"
+                          ItemsSource="{Binding MapAreas}"
+                          SelectedItem="{Binding SelectedMapArea, Mode=TwoWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid Margin="2,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.RowSpan="2"
+                                           HeightRequest="40"
+                                           Source="{Binding PortalItem.ThumbnailUri}"
+                                           WidthRequest="60" />
+                                    <Label Grid.Column="1"
+                                           Margin="5,0"
+                                           Text="{Binding PortalItem.Title}"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="5">
+                    <Button x:Name="DownloadButton"
+                            Clicked="OnDownloadMapAreaClicked"
+                            Text="{Binding DisplayOrDownloadButtonText}" />
+                    <Button Clicked="OnDeleteAllMapAreasClicked" Text="Delete all" />
+                    <Button Text="Sync" Clicked="OnSyncClicked" />
+                    <Button x:Name="ShowOnlineButton"
+                            Clicked="ShowOnlineButton_Clicked"
+                            IsEnabled="{Binding ShowOnlineEnabled}"
+                            Text="Show online" />
+                </HorizontalStackLayout>
+                <Button x:Name="DownloadOnDemandButton"
+                        HorizontalOptions="CenterAndExpand" VerticalOptions="StartAndExpand"
+                        Margin="5"
+                        IsVisible="False"
+                        Text="Download current area"
+                        Clicked="OnDownloadOnDemandClicked"/>
+            </StackLayout>
+        </Border>
+        <Grid x:Name="BusyIndicator"
+              Grid.RowSpan="2" Grid.ColumnSpan="2"
+              IsVisible="{Binding ShowBusyIndicator}">
+            <Border BackgroundColor="{AppThemeBinding Light=#dfdfdf,
+                                                      Dark=#303030}"
+                    HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 10"
+                    VerticalOptions="Center">
+                <VerticalStackLayout Padding="10">
+                    <Label x:Name="BusyText"
+                           Margin="10"
+                           FontSize="18"
+                           Text="{Binding BusyText}" />
+                    <ProgressBar x:Name="ProgressView"
+                                 HeightRequest="10" WidthRequest="100"
+                                 HorizontalOptions="Center" VerticalOptions="Center"
+                                 IsEnabled="True"
+                                 Progress="{Binding ProgressPercent}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

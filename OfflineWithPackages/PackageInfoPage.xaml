@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="OfflineWithPackages.PackageInfoPage"
+             Title="Explore map packages">
+    <FlexLayout Direction="Column"
+                AlignItems="Start"
+                Margin="100,10"
+                JustifyContent="SpaceEvenly">
+        <Picker Title="Available map packages"
+                ItemsSource="{Binding AvailableMapPackages}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedMapPackage, Mode=TwoWay}"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="160"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0"
+           Text="Expires:" 
+           HorizontalOptions="End" Margin="0,10,10,0"/>
+            <Label Grid.Row="0" Grid.Column="1"
+           Text="{Binding SelectedMapPackage.ExpirationDateString}"
+           ToolTipProperties.Text="MapPackage.Expiration.DateTime"
+           Margin="0,10,10,0"/>
+            <Label Grid.Row="1" Grid.Column="0"
+           Text="Locator?"
+                 ToolTipProperties.Text="MapPackage.LocatorTask != null"
+           HorizontalOptions="End" Margin="0,10,10,0"/>
+            <CheckBox Grid.Row="1" Grid.Column="1"
+              IsEnabled="False"
+              IsChecked="{Binding SelectedMapPackage.HasLocator}" />
+        </Grid>
+        <Picker Title="Maps in package:" HorizontalOptions="Start"
+                ItemsSource="{Binding SelectedMapPackage.MapIndices}"
+                SelectedItem="{Binding SelectedMapPackage.SelectedMapIndex, Mode=TwoWay}"
+                ToolTipProperties.Text="MapPackage.Maps"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="160"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" 
+                   Text="Street network?"
+                    ToolTipProperties.Text="Map.TransportationNetworks.Count > 0"
+                   HorizontalOptions="End" Margin="0,10,10,0"/>
+            <CheckBox Grid.Row="0" Grid.Column="1" IsEnabled="False"
+                    IsChecked="{Binding SelectedMapPackage.HasStreetNetwork}"/>
+            <Label Grid.Row="1" Grid.Column="0" 
+                   Text="Utility network?"
+                      ToolTipProperties.Text="Map.UtilityNetworks.Count > 0"
+                   HorizontalOptions="End" Margin="0,10,10,0"/>
+            <CheckBox Grid.Row="1" Grid.Column="1" IsEnabled="False"
+                    IsChecked="{Binding SelectedMapPackage.HasUtilityNetwork}"/>
+        </Grid>
+        <ListView x:Name="OnlineLayersListView"
+              MaximumHeightRequest="100"
+                  ItemsSource="{Binding SelectedMapPackage.OnlineLayers}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Name}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Text="Show map"
+            MinimumWidthRequest="60" MinimumHeightRequest="30"
+            Clicked="ShowMapButtonClicked"/>
+    </FlexLayout>
+</ContentPage>
