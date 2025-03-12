@@ -49,7 +49,7 @@ public partial class MapViewModel : ObservableObject, IDisposable
     #region Private properties
 
     // Portal ID of the web map that has the ahead-of-time map areas.
-    private const string PortalItemId = "eca4393d40aa4facbf4fcc1f032c6d3b";
+    private const string PortalItemId = "a0b18b344a314be88b34da34d51d5ee1"; 
 
     private GraphicsOverlay _extentGraphics;
 
@@ -214,14 +214,14 @@ public partial class MapViewModel : ObservableObject, IDisposable
 
         // Create download offlineMapParameters.
         var parameters = await _offlineMapTask.CreateDefaultDownloadPreplannedOfflineMapParametersAsync(SelectedMapArea);
-
+        
         // Set the update mode to synchronize updates with feature services.
         parameters.UpdateMode = PreplannedUpdateMode.SyncWithFeatureServices;
         
         // Create the download preplanned offline map job.
         var job = _offlineMapTask.DownloadPreplannedOfflineMap(parameters, localMapAreaPath);
 
-        #region .
+        #region (show download progress)
         job.ProgressChanged += (s, e) => 
         {
             // Because the event is raised on a background thread, the dispatcher must be used to
@@ -241,9 +241,9 @@ public partial class MapViewModel : ObservableObject, IDisposable
             // Await the result of the job.
             var results = await job.GetResultAsync();
 
-            // Set the current mobile map package.
+            // Store the current mobile map package.
             _mobileMapPackage = results.MobileMapPackage;
-
+            
             #region Display any layer or table errors encountered
             // Handle possible errors and show them to the user.
             if (results.HasErrors)
@@ -301,8 +301,8 @@ public partial class MapViewModel : ObservableObject, IDisposable
         var offlineMapParameters = await 
             offlineMapTask.CreateDefaultGenerateOfflineMapParametersAsync(offlineMapExtent);
 
-        // Edit the parameters to include the basemap.
-        offlineMapParameters.IncludeBasemap = true;
+        // Edit the parameters to exclude the basemap.
+        offlineMapParameters.IncludeBasemap = false;
 
         // Create a local folder to store the map package download.
         string localMapPath = Path.Combine(_offlineDataFolder, "OfflineMap_" + DateTime.Now.ToFileTime().ToString());
@@ -330,6 +330,15 @@ public partial class MapViewModel : ObservableObject, IDisposable
             {
                 var result = await generateJob.GetResultAsync();
                 Map = result.OfflineMap;
+
+                // Add a basemap from a local tile cache (delivered with the app).
+                string tilePackagePath = await WriteAssetToAppDataDirectoryFile($"Assets/PalmSpringsTopoBasemap.tpkx", "PalmSpringsTopoBasemap.tpkx");
+                if (!string.IsNullOrEmpty(tilePackagePath))
+                {
+                    var tpk = new TileCache(tilePackagePath);
+                    var imageLayer = new ArcGISTiledLayer(tpk);
+                    Map.Basemap = new Basemap(imageLayer);
+                }
                 #region ...
                 ShowBusyIndicator = false;
                 #endregion
@@ -371,15 +380,23 @@ public partial class MapViewModel : ObservableObject, IDisposable
         // Get default synchronization parameters.
         var syncParameters = await offlineMapSyncTask.CreateDefaultOfflineMapSyncParametersAsync();
 
-        // Update the sync direction to "download" to fetch server updates.
-        syncParameters.SyncDirection = SyncDirection.Download;
+        // Update the sync direction to "bidirectional".
+        syncParameters.SyncDirection = SyncDirection.Bidirectional;
 
-        // Synchronize the map.
-        var syncJob = offlineMapSyncTask.SyncOfflineMap(syncParameters);
-        var syncResult = await syncJob.GetResultAsync();
+        OfflineMapSyncResult syncResult = null;
+        try
+        {
+            // Synchronize the map.
+            var syncJob = offlineMapSyncTask.SyncOfflineMap(syncParameters);
+            syncResult = await syncJob.GetResultAsync();
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Sync failed.", ex.Message, "OK");
+        }
 
         // Return a bool that indicates whether the sync had errors.
-        return !syncResult.HasErrors;
+        return syncResult != null && !syncResult.HasErrors;
 
         // (Can get more info about sync results and errors)
         //var layerSyncResults = syncResult.LayerResults;
@@ -463,6 +480,28 @@ public partial class MapViewModel : ObservableObject, IDisposable
     {
         // Close the current mobile package.
         _mobileMapPackage?.Close();
+    }
+
+    public static async Task<string> WriteAssetToAppDataDirectoryFile(string resourceFilePath, string fileName)
+    {
+        // Check to see if the mobile map package is already present in the AppDataDirectory.
+        if (File.Exists(Path.Combine(FileSystem.Current.AppDataDirectory, fileName)))
+        {
+            // If the mobile map package is present in the AppDataDirectory, return the file path.
+            return Path.Combine(FileSystem.Current.AppDataDirectory, fileName);
+        }
+
+        // Open the source file.
+        using Stream inputStream = await FileSystem.OpenAppPackageFileAsync(resourceFilePath);
+
+        // Create an output filename
+        string targetFile = Path.Combine(FileSystem.Current.AppDataDirectory, fileName);
+
+        // Copy the file to the AppDataDirectory
+        using FileStream outputStream = File.Create(targetFile);
+        await inputStream.CopyToAsync(outputStream);
+
+        return targetFile;
     }
     #endregion
 }

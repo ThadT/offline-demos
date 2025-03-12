@@ -1,6 +1,7 @@
 using Esri.ArcGISRuntime;
 using Esri.ArcGISRuntime.Http;
 using Esri.ArcGISRuntime.Security;
+using Esri.Calcite.Maui;
 
 namespace OfflineWithPackages;
 
@@ -33,6 +34,7 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
+            .UseCalcite()
             .UseArcGISRuntime(config => config
             // .UseLicense("[Your ArcGIS Maps SDK License key]")
              .UseApiKey("YOUR_API_KEY") // API key isn't required for opening MMPKs

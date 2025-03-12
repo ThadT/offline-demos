@@ -7,6 +7,7 @@
     <Grid Style="{DynamicResource EsriSampleContainer}">
         <esri:MapView x:Name="MyMapView" Style="{DynamicResource EsriSampleGeoView}"
                       Map="{Binding Map}"
+                      GeoViewTapped="mapView_GeoViewTapped"
                       ViewpointChanged="MyMapView_ViewpointChanged"
                       GraphicsOverlays="{Binding GraphicsOverlays}"/>
         <Border>
@@ -56,7 +57,7 @@
                         HorizontalOptions="CenterAndExpand" VerticalOptions="StartAndExpand"
                         Margin="5"
                         IsVisible="False"
-                        Text="Download current area"
+                        Text="Download current extent"
                         Clicked="OnDownloadOnDemandClicked"/>
             </StackLayout>
         </Border>
@@ -81,5 +82,29 @@
                 </VerticalStackLayout>
             </Border>
         </Grid>
+        <Border x:Name="SidePanel" IsVisible="False">
+            <Border Background="{AppThemeBinding Dark=#333333, Light=White}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <esri:FeatureFormView x:Name="formViewer" Grid.ColumnSpan="2"
+                                          Background="Transparent" Padding="12" VerticalScrollBarVisibility="Default"/>
+                    <Border Grid.Row="1" StrokeThickness="0" Padding="5" Background="{AppThemeBinding Dark=Black, Light=White}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button Text="Close" Background="#007AC2" TextColor="White" Clicked="CloseButton_Click" Grid.Column="0" />
+                            <Button Text="Reset" Background="#D83020" TextColor="White" Clicked="DiscardButton_Click" Grid.Column="1" />
+                            <Button Text="Apply" Background="#35AC46" TextColor="White" Clicked="UpdateButton_Click" Grid.Column="2" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Border>
     </Grid>
 </ContentPage>

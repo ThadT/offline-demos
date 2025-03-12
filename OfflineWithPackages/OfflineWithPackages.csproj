@@ -23,12 +23,16 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+    <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Using Include="Esri.ArcGISRuntime.Maui" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.3.0" />
+		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.6.0" />
+		<PackageReference Include="Esri.Calcite.Maui" Version="0.1.0-180.gd68f0a61e8" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -53,15 +57,32 @@
 	</ItemGroup>
   
 	<ItemGroup>
+	  <Compile Remove="AuthenticationHelper.cs" />
+	</ItemGroup>
+  
+	<ItemGroup>
+	  <None Remove="Assets\Greater_Los_Angeles.mmpk" />
+	  <None Remove="Assets\LA_StreetMap_clip.mmpk" />
 	  <None Remove="Assets\PalmSprings_DayNight.mmpk" />
+	  <None Remove="Assets\PalmSprings_Maps.mmpk" />
+	  <None Remove="Assets\PhillyBldgs.mspk" />
 	  <None Remove="Assets\PSCC_MMPK_With_Network.mmpk" />
 	  <None Remove="Assets\SanFrancisco.mmpk" />
 	  <None Remove="Assets\Yellowstone.mmpk" />
 	</ItemGroup>
   
 	<ItemGroup>
+	  <MauiAsset Include="Assets\LA_StreetMap_clip.mmpk">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiAsset>
 	  <MauiAsset Include="Assets\PalmSprings_DayNight.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Include="Assets\PalmSprings_Maps.mmpk">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Include="Assets\PhillyBldgs.mspk">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </MauiAsset>
 	  <MauiAsset Include="Assets\PSCC_MMPK_With_Network.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -76,7 +97,7 @@
   
   <!-- WinUIEx is used to workaround the lack of a WebAuthenticationBroker for WinUI. https://github.com/microsoft/WindowsAppSDK/issues/441 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">
-    <PackageReference Include="WinUIEx" Version="1.8.0" />
+    <PackageReference Include="WinUIEx" Version="2.5.1" />
   </ItemGroup>
   <ItemGroup>
     <MauiXaml Update="PackageInfoPage.xaml">

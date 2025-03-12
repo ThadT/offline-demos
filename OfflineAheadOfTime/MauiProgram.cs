@@ -1,6 +1,7 @@
 using Esri.ArcGISRuntime;
 using Esri.ArcGISRuntime.Http;
 using Esri.ArcGISRuntime.Security;
+using Esri.ArcGISRuntime.Toolkit.Maui;
 
 namespace OfflineAheadOfTime;
 
@@ -32,10 +33,10 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            })
+            }).UseArcGISToolkit()
             .UseArcGISRuntime(config => config
             // .UseLicense("[Your ArcGIS Maps SDK License key]")
-             .UseApiKey("YOUR_API_KEY")
+            //.UseApiKey("YOUR_API_KEY")
                .ConfigureAuthentication(auth => auth
                    .UseDefaultChallengeHandler()
               )

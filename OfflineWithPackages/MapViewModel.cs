@@ -41,11 +41,11 @@ public partial class MapViewModel : ObservableObject
         // Create the list of available map packages (.mmpk files), stored as app assets.
         // PackageInfo is a custom class that describes a map package
         AvailableMapPackages = [
-            new PackageInfo("Palm Springs", "PalmSprings_DayNight.mmpk"),
+            new PackageInfo("Palm Springs", "PalmSprings_Maps.mmpk"),
             new PackageInfo("Palm Springs CC", "PSCC_MMPK_With_Network.mmpk"),
             new PackageInfo("San Francisco", "SanFrancisco.mmpk"),
             new PackageInfo("Yellowstone", "Yellowstone.mmpk"),
-            new PackageInfo("LA StreetMap Premium", "Greater_Los_Angeles.mmpk")
+            new PackageInfo("LA StreetMap Premium", "LA_StreetMap_clip.mmpk")
         ];
 
         #region ...
@@ -57,12 +57,12 @@ public partial class MapViewModel : ObservableObject
     private async void ReadScenePackage()
     {
         #region ...
-        //var scenePackageFile = await PackageInfo.WriteAssetToAppDataDirectoryFile("Assets/Philadelphia.mspk", "Philadelphia.mspk");
+        var scenePackageFile = await PackageInfo.WriteAssetToAppDataDirectoryFile("Assets/PhillyBldgs.mspk", "Philadelphia.mspk");
         #endregion
-        
-        //var scenePackage = new MobileScenePackage(scenePackageFile);
-        //await scenePackage.LoadAsync();
-        //Scene = scenePackage.Scenes.FirstOrDefault();
+
+        var scenePackage = new MobileScenePackage(scenePackageFile);
+        await scenePackage.LoadAsync();
+        Scene = scenePackage.Scenes.FirstOrDefault();
     }
 
     #region ...
@@ -205,9 +205,10 @@ public partial class PackageInfo : ObservableObject
     [ObservableProperty]
     private Map _selectedMap;
     [ObservableProperty]
-    private List<string> _mapIndices;
+    private List<string> _mapNames;
+    private Dictionary<string, int> _mapIndices;
     [ObservableProperty]
-    private string _selectedMapIndex = "Map 0";
+    private string _selectedMapName = "";
     [ObservableProperty]
     private bool _hasLocator;
     [ObservableProperty]
@@ -216,6 +217,8 @@ public partial class PackageInfo : ObservableObject
     private bool _hasUtilityNetwork;
     [ObservableProperty]
     private string _expirationDateString;
+    [ObservableProperty]
+    private string _expirationMessage;
     [ObservableProperty]
     private IReadOnlyList<Layer> _onlineLayers;
     [ObservableProperty]
@@ -247,42 +250,49 @@ public partial class PackageInfo : ObservableObject
         // Get the expiration date (if any).
         if (MapPackage.Expiration != null)
         {
+            // Show the expiration date and message in the UI.
             ExpirationDateString = MapPackage.Expiration.DateTime.ToString("MMMM dd, yyyy");
+            ExpirationMessage = MapPackage.Expiration.Message;
         } 
         else
         {
             ExpirationDateString = "none";
+            ExpirationMessage = "";
         }
 
         // Get the maps in the package.
         Maps = MapPackage.Maps;
 
         #region ...
+        var indices = new Dictionary<string, int>();
         var mapCount = Maps.Count;
-        var indices = new List<string>();
-        for (int i = 1; i <= mapCount; i++)
+        for (int i = 0; i < mapCount; i++)
         {
-            indices.Add("Map " + i.ToString());
+            var map = Maps[i];
+            indices.Add(map.Item.Name, i);
         }
-        SelectedMapIndex = "Map -1";
-        MapIndices = indices;
+        _mapIndices = indices;
+
+        MapNames = indices.Keys.ToList();
+
+        SelectedMapName = "";
         #endregion
     }
 
-    partial void OnSelectedMapIndexChanged(string value)
+    partial void OnSelectedMapNameChanged(string value)
     {
         #region ...
         if (string.IsNullOrEmpty(value)) { return; }
-        var intString = value.Split(' ')[1];
-        var ok = int.TryParse(intString, out var index);
-        if (!ok || index < 0) { return; }
-        index--;
+
+        var index = _mapIndices[value];
+        
+        if (index < 0) { return; }
         #endregion
 
         // Get a map from the mobile map package's collection of maps.
         SelectedMap = MapPackage.Maps[index];
         SelectedMap.LoadAsync();
-
+        
         // See if this map has a street network.
         HasStreetNetwork = SelectedMap.TransportationNetworks.Count > 0;
 

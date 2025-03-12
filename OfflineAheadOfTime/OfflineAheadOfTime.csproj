@@ -25,12 +25,15 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+    <WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Using Include="Esri.ArcGISRuntime.Maui" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.3.0" />
+		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.6.0" />
+		<PackageReference Include="Esri.ArcGISRuntime.Toolkit.Maui" Version="200.6.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
 	</ItemGroup>
   
@@ -52,7 +55,22 @@
 	</ItemGroup>
   <!-- WinUIEx is used to workaround the lack of a WebAuthenticationBroker for WinUI. https://github.com/microsoft/WindowsAppSDK/issues/441 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">
-    <PackageReference Include="WinUIEx" Version="1.8.0" />
+    <PackageReference Include="WinUIEx" Version="2.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="AuthenticationHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\PalmSpringsBasemap.tpkx" />
+    <None Remove="Assets\PalmSpringsTopoBasemap.tpkx" />
+  </ItemGroup>
+  <ItemGroup>
+    <MauiAsset Include="Assets\PalmSpringsBasemap.tpkx">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </MauiAsset>
+    <MauiAsset Include="Assets\PalmSpringsTopoBasemap.tpkx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </MauiAsset>
   </ItemGroup>
 
 </Project>
